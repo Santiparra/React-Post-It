@@ -1,8 +1,12 @@
-function Post() {
+//Se importa para generar classes para css unicos
+import classes from "../styles/Post.module.css";
+
+function Post(props) {
+
     return (
-        <div>
-            <p>Santi</p>
-            <p>Curso de React</p>
+        <div className={classes.post}>
+            <p className={classes.author}>{props.author}</p>
+            <p className={classes.text}>{props.body}</p>
         </div>
     );
 }
