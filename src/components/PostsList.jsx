@@ -1,52 +1,61 @@
 import Post from "./Post";
 import AddPost from "./AddPost"
 import Modal from "./Modal";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 
 //Se importa para generar classes para css unicos
 import classes from "../styles/PostList.module.css";
 
-function PostList({ isPosting, onStopPosting }) { 
-    const [ enteredBody, setEnteredBody ] = useState("");
-    const [ enteredAuthor, setEnteredAuthor ] = useState("");
+function PostList({ isPosting, onStopPosting }) {    
+    const [ posts, setPosts ] = useState([]);
+    const [ isFetching, setisFetching ] = useState(false);
 
-    function bodyChangeHandler(event) {
-        setEnteredBody(event.target.value);
+    useEffect( () => {
+            async function fetchPosts() {
+                setisFetching(true);
+                const response = await fetch("http://localhost:8080/posts");
+                const resData = await response.json();
+                setPosts(resData.posts);
+                setisFetching(false);   
+            }
+            
+            fetchPosts();
+    }, [] );
+
+    function addPostHandler(postData) {
+        fetch("http://localhost:8080/posts", {
+            method: "POST",
+            body:  JSON.stringify(postData),
+            headers: {
+                "Content-Type" : "application/json"
+            }
+        });
+        setPosts((existingPosts) => [postData, ...existingPosts]);
     }
-
-    function authorChangeHandler(event) {
-        setEnteredAuthor(event.target.value);
-    }
-
-    
-
-//    let modalContent;
-
-//    if (modalIsVisible) {
-//        modalContent = (
-//            <Modal onClose={hideModalHandler}>
-//                <AddPost 
-//                    onBodyChange={bodyChangeHandler} 
-//                    onAuthorChange={authorChangeHandler} 
-//                />
-//            </Modal>
-//        );
-//    }
 
     return (
         <>
             {isPosting && (
                 <Modal onClose={onStopPosting}>
-                    <AddPost
-                        onBodyChange={bodyChangeHandler}
-                        onAuthorChange={authorChangeHandler}
-                    />
+                    <AddPost onCancel={onStopPosting} onAddPost={addPostHandler} />
                 </Modal>
             )}
-            <ul className={classes.posts}>
-                <Post author="Santi" body="React" />
-                <Post author={enteredAuthor} body={enteredBody} />
+            {!isFetching && posts.length > 0 && (
+                <ul className={classes.posts}>
+                {posts.map((post) => <Post key={post.body} author={post.author} body={post.body} />) }
             </ul>
+            )}
+            {!isFetching && posts.length === 0 && (
+                <div style={{ textAlign:"center", color:"white" }}>
+                    <h2>Aún no se han agregado notas</h2>
+                </div>
+            )}
+            {isFetching && (
+                <div style={{ textAlign:"center", color:"white" }}>
+                    <p>Cargando posts...</p>
+                </div>
+            )}
         </>
     )
 }
