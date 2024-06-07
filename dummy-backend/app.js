@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 app.get('/posts', async (req, res) => {
   const storedPosts = await getStoredPosts();
   //esto es un delay para probar con BE lentos, va comentado en uso
-  await new Promise((resolve, reject) => setTimeout(() => resolve(), 1500));
+  //await new Promise((resolve, reject) => setTimeout(() => resolve(), 1500));
   res.json({ posts: storedPosts });
 });
 
