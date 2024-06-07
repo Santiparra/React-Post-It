@@ -1,11 +1,12 @@
 import Post from "./Post";
 import AddPost from "./AddPost"
+import Modal from "./Modal";
 import { useState } from "react";
 
 //Se importa para generar classes para css unicos
 import classes from "../styles/PostList.module.css";
 
-function PostList() {
+function PostList({ isPosting, onStopPosting }) { 
     const [ enteredBody, setEnteredBody ] = useState("");
     const [ enteredAuthor, setEnteredAuthor ] = useState("");
 
@@ -17,9 +18,31 @@ function PostList() {
         setEnteredAuthor(event.target.value);
     }
 
+    
+
+//    let modalContent;
+
+//    if (modalIsVisible) {
+//        modalContent = (
+//            <Modal onClose={hideModalHandler}>
+//                <AddPost 
+//                    onBodyChange={bodyChangeHandler} 
+//                    onAuthorChange={authorChangeHandler} 
+//                />
+//            </Modal>
+//        );
+//    }
+
     return (
         <>
-            <AddPost onBodyChange={bodyChangeHandler} onAuthorChange={authorChangeHandler} />
+            {isPosting && (
+                <Modal onClose={onStopPosting}>
+                    <AddPost
+                        onBodyChange={bodyChangeHandler}
+                        onAuthorChange={authorChangeHandler}
+                    />
+                </Modal>
+            )}
             <ul className={classes.posts}>
                 <Post author="Santi" body="React" />
                 <Post author={enteredAuthor} body={enteredBody} />
